@@ -35,10 +35,12 @@ export function currentMonth(): string {
 
 /** Last `count` months ending at `end` (inclusive), oldest first. */
 export function lastMonths(count: number, end: string = currentMonth()): string[] {
-  const [y, m] = end.split("-").map(Number);
+  const parts = end.split("-");
+  const year = Number(parts[0]) || 0;
+  const month = Number(parts[1]) || 1;
   const out: string[] = [];
   for (let i = count - 1; i >= 0; i--) {
-    const total = y * 12 + (m - 1) - i;
+    const total = year * 12 + (month - 1) - i;
     const yy = Math.floor(total / 12);
     const mm = (total % 12) + 1;
     out.push(`${yy}-${String(mm).padStart(2, "0")}`);

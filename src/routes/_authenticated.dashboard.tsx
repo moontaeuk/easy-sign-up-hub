@@ -71,7 +71,9 @@ function DashboardPage() {
     supabase.auth.getUser().then(({ data }) => {
       const u = data.user;
       if (!u) return;
-      setUserLabel(u.user_metadata?.full_name || u.user_metadata?.name || u.email || "");
+      setUserLabel(
+        u.user_metadata?.["full_name"] || u.user_metadata?.["name"] || u.email || "",
+      );
     });
   }, []);
 
@@ -84,7 +86,7 @@ function DashboardPage() {
     [entries],
   );
   const months = useMemo(() => lastMonths(4, latestMonth || currentMonth()), [latestMonth]);
-  const prevMonth = months[months.length - 2];
+  const prevMonth = months[months.length - 2] ?? currentMonth();
 
   const latestPrice = (item: LedgerItem) => byItemMonth.get(item.id)?.get(latestMonth);
   const prevPrice = (item: LedgerItem) => byItemMonth.get(item.id)?.get(prevMonth);
@@ -417,7 +419,10 @@ function DashboardPage() {
               toast.error("이름을 입력하세요.");
               return;
             }
-            addMutation.mutate({ name: nameInput.trim(), category: categoryInput.trim() || undefined });
+            const category = categoryInput.trim();
+            addMutation.mutate(
+              category ? { name: nameInput.trim(), category } : { name: nameInput.trim() },
+            );
           }}
         />
       ) : null}
@@ -468,9 +473,9 @@ function RecordCard({
     .map((m) => m[0])
     .sort()
     .reverse();
-  const lastPrice = sortedMonths.length > 0 ? byItemMonth.get(effectiveItem!.id)!.get(sortedMonths[0]) : undefined;
+  const lastPrice = sortedMonths.length > 0 ? byItemMonth.get(effectiveItem!.id)!.get(sortedMonths[0] ?? "") : undefined;
   const secondPrice =
-    sortedMonths.length > 1 ? byItemMonth.get(effectiveItem!.id)!.get(sortedMonths[1]) : undefined;
+    sortedMonths.length > 1 ? byItemMonth.get(effectiveItem!.id)!.get(sortedMonths[1] ?? "") : undefined;
   const delta =
     lastPrice !== undefined && secondPrice !== undefined && secondPrice !== 0
       ? (lastPrice - secondPrice) / secondPrice
